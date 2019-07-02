@@ -28,7 +28,6 @@ class Minesweeper {
         sf::Color markedColor;
         sf::Color revealedColor;
         sf::Color bombColor;
-        // in the future use sprites instead of colorful rectangles
         int bombNeighbors(int x, int y);
         void revealAll();
         void revealNeighbor(int x, int y);

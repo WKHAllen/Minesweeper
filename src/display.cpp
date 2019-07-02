@@ -7,7 +7,7 @@ void Display::create(int width, int height, std::string title) {
     w = width;
     h = height;
     cellSize = 20;
-    window.create(sf::VideoMode(w * cellSize, h * cellSize), title);
+    window.create(sf::VideoMode(w * cellSize, h * cellSize), title, sf::Style::Titlebar | sf::Style::Close);
     window.setVerticalSyncEnabled(true);
     font.loadFromFile("assets/fonts/Inconsolata-Bold.ttf");
 }
