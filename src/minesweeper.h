@@ -19,6 +19,7 @@ class Minesweeper {
         int h;
         int bombs;
         bool playing;
+        int marking[2];
         std::vector< std::vector<CellState> > board;
         std::vector< std::vector<int> > neighbors;
         Display screen;

@@ -20,6 +20,7 @@ Minesweeper::Minesweeper(int width, int height, int difficulty) {
     h = height;
     bombs = width * height * difficulty / 100;
     playing = true;
+    marking[0] = marking[1] = -1;
     board.resize(w, std::vector<CellState>(h));
     neighbors.resize(w, std::vector<int>(h));
     srand(time(NULL));
@@ -130,19 +131,22 @@ void Minesweeper::check(int x, int y) {
 }
 
 void Minesweeper::mark(int x, int y) {
-    if (board[x][y] == Space) {
-        board[x][y] = MarkedSpace;
+    if (marking[0] != x || marking[1] != y) {
+        marking[0] = x;
+        marking[1] = y;
+        if (board[x][y] == Space) {
+            board[x][y] = MarkedSpace;
+        }
+        else if (board[x][y] == Bomb) {
+            board[x][y] = MarkedBomb;
+        }
+        else if (board[x][y] == MarkedSpace) {
+            board[x][y] = Space;
+        }
+        else if (board[x][y] == MarkedBomb) {
+            board[x][y] = Bomb;
+        }
     }
-    else if (board[x][y] == Bomb) {
-        board[x][y] = MarkedBomb;
-    }
-    else if (board[x][y] == MarkedSpace) {
-        board[x][y] = Space;
-    }
-    else if (board[x][y] == MarkedBomb) {
-        board[x][y] = Bomb;
-    }
-    screen.draw(x, y, markedColor);
 }
 
 void Minesweeper::run() {
@@ -157,11 +161,11 @@ void Minesweeper::run() {
     }
     sf::Vector2i pos;
     while (screen.isOpen() && playing) {
-        if (sf::Mouse::isButtonPressed(sf::Mouse::Left)) {
+        if (sf::Mouse::isButtonPressed(sf::Mouse::Left) && screen.window.hasFocus()) {
             pos = sf::Mouse::getPosition(screen.window);
             check(pos.x / screen.cellSize, pos.y / screen.cellSize);
         }
-        if (sf::Mouse::isButtonPressed(sf::Mouse::Right)) {
+        if (sf::Mouse::isButtonPressed(sf::Mouse::Right) && screen.window.hasFocus()) {
             pos = sf::Mouse::getPosition(screen.window);
             mark(pos.x / screen.cellSize, pos.y / screen.cellSize);
         }
