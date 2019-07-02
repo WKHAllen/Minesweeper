@@ -40,8 +40,8 @@ Minesweeper::Minesweeper(int width, int height, int difficulty) {
     }
     borderColor = sf::Color(64, 64, 64);
     unknownColor = sf::Color(192, 192, 192);
-    markedColor = sf::Color(192, 0, 0);
-    revealedColor = sf::Color(0, 192, 0);
+    markedColor = sf::Color(0, 192, 0);
+    revealedColor = sf::Color(64, 64, 255);
     bombColor = sf::Color(255, 64, 64);
 }
 
@@ -83,17 +83,49 @@ int Minesweeper::bombNeighbors(int x, int y) {
     return neighbors;
 }
 
+void Minesweeper::revealAll() {
+    for (int i = 0; i < w; i++) {
+        for (int j = 0; j < h; j++) {
+            if (board[i][j] == Bomb || board[i][j] == MarkedBomb) {
+                board[i][j] = Explosion;
+            }
+            else if (board[i][j] == Space || board[i][j] == MarkedSpace) {
+                board[i][j] = Revealed;
+            }
+        }
+    }
+}
+
+void Minesweeper::revealNeighbor(int x, int y) {
+    if (x >= 0 && x < w && y >= 0 && y < h && neighbors[x][y] != 0 && board[x][y] == Space) {
+        board[x][y] = Revealed;
+    }
+}
+
+void Minesweeper::removeZeros(int x, int y) {
+    if (x >= 0 && x < w && y >= 0 && y < h && neighbors[x][y] == 0 && board[x][y] == Space) {
+        board[x][y] = Revealed;
+        removeZeros(x - 1, y);
+        removeZeros(x, y - 1);
+        removeZeros(x + 1, y);
+        removeZeros(x, y + 1);
+        for (int i = x - 1; i <= x + 1; i++) {
+            for (int j = y - 1; j <= y + 1; j++) {
+                revealNeighbor(i, j);
+            }
+        }
+    }
+}
+
 void Minesweeper::check(int x, int y) {
     if (board[x][y] == Bomb || board[x][y] == MarkedBomb) {
         board[x][y] = Explosion;
-        // reveal all bombs?
+        revealAll();
         //playing = false;
     }
     else if (board[x][y] == Space) {
+        removeZeros(x, y);
         board[x][y] = Revealed;
-        if (neighbors[x][y] == 0) {
-            // search surrounding area for more 0 neighbor cells and reveal them?
-        }
     }
 }
 
@@ -103,6 +135,12 @@ void Minesweeper::mark(int x, int y) {
     }
     else if (board[x][y] == Bomb) {
         board[x][y] = MarkedBomb;
+    }
+    else if (board[x][y] == MarkedSpace) {
+        board[x][y] = Space;
+    }
+    else if (board[x][y] == MarkedBomb) {
+        board[x][y] = Bomb;
     }
     screen.draw(x, y, markedColor);
 }
