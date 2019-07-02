@@ -4,7 +4,6 @@
 #include <stdlib.h>
 #include <time.h>
 #include <vector>
-#include <iostream>
 
 Minesweeper::Minesweeper(int width, int height, int difficulty) {
     if (width == 0) {
@@ -14,7 +13,7 @@ Minesweeper::Minesweeper(int width, int height, int difficulty) {
         height = 30;
     }
     if (difficulty < 0 || difficulty > 100) {
-        difficulty = 25;
+        difficulty = 20;
     }
     w = width;
     h = height;
@@ -106,10 +105,11 @@ void Minesweeper::revealNeighbor(int x, int y) {
 void Minesweeper::removeZeros(int x, int y) {
     if (x >= 0 && x < w && y >= 0 && y < h && neighbors[x][y] == 0 && board[x][y] == Space) {
         board[x][y] = Revealed;
-        removeZeros(x - 1, y);
-        removeZeros(x, y - 1);
-        removeZeros(x + 1, y);
-        removeZeros(x, y + 1);
+        for (int i = x - 1; i <= x + 1; i++) {
+            for (int j = y - 1; j <= y + 1; j++) {
+                removeZeros(i, j);
+            }
+        }
         for (int i = x - 1; i <= x + 1; i++) {
             for (int j = y - 1; j <= y + 1; j++) {
                 revealNeighbor(i, j);
@@ -122,9 +122,9 @@ void Minesweeper::check(int x, int y) {
     if (board[x][y] == Bomb || board[x][y] == MarkedBomb) {
         board[x][y] = Explosion;
         revealAll();
-        //playing = false;
+        playing = false;
     }
-    else if (board[x][y] == Space) {
+    else if (board[x][y] == Space || board[x][y] == MarkedSpace) {
         removeZeros(x, y);
         board[x][y] = Revealed;
     }
@@ -150,8 +150,6 @@ void Minesweeper::mark(int x, int y) {
 }
 
 void Minesweeper::run() {
-    // display instructions
-    // add menu screen?
     screen.create(w, h, "Minesweeper");
     screen.fill(borderColor);
     for (int i = 0; i < w; i++) {
@@ -169,10 +167,12 @@ void Minesweeper::run() {
             pos = sf::Mouse::getPosition(screen.window);
             mark(pos.x / screen.cellSize, pos.y / screen.cellSize);
         }
+        else {
+            marking[0] = marking[1] = -1;
+        }
         display();
     }
     if (!playing) {
-        // display "you won" or "you lost"
-        // close the screen after some user input
+        while (screen.isOpen()) {}
     }
 }

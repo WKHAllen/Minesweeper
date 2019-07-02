@@ -2,7 +2,6 @@
 #include <SFML/Graphics.hpp>
 #include <string>
 #include <sstream>
-#include <iostream>
 
 void Display::create(int width, int height, std::string title) {
     w = width;
